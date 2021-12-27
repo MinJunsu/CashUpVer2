@@ -54,9 +54,18 @@ class BitmexRealTimeData:
             low_price = element['low'] if element['low'] is not None else 0
             close_price = element['close'] if element['close'] is not None else 0
             volume = element['volume'] if element['volume'] is not None else 0
-            obj = model()
+            obj, created = model.objects.get_or_create(
+                datetime=timestamp,
+                defaults={
+                    'time': f"{str(timestamp.day).zfill(2)} {str(timestamp.hour).zfill(2)}:{str(timestamp.minute).zfill(2)}",
+                    'min_price': low_price,
+                    'max_price': high_price,
+                    'open_price': open_price,
+                    'close_price': close_price,
+                    'volume': volume
+                }
+            )
 
-            obj.time = f"{str(timestamp.day).zfill(2)} {str(timestamp.hour).zfill(2)}:{str(timestamp.minute).zfill(2)}"
             obj.min_price = low_price
             obj.max_price = high_price
             obj.open_price = open_price

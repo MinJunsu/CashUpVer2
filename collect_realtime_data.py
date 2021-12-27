@@ -23,6 +23,7 @@ def on_message(ws, message):
     message = json.loads(message)
     action = message.get("action")
     data = message.get("data")[0]
+    print(message)
     if action == "insert":
         if data['symbol'] == "XBTUSD":
             usd.close_price = data['price']
