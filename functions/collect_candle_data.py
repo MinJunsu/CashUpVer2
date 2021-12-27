@@ -55,7 +55,7 @@ class BitmexBackData:
             'partial': False,
             'start': start,
             'count': self.COUNT,
-            'reverse': True
+            'reverse': False
         }).json()
         for element in response:
             if bins == '1h':
