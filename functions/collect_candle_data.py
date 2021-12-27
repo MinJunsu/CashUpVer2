@@ -41,7 +41,7 @@ class BitmexRealTimeData:
         URL = f'https://www.bitmex.com/api/v1/trade/bucketed?symbol={symbol}&binSize={bins}&partial=true&&count=10&reverse=true'
 
         response = requests.get(URL).json()
-        for element in response:
+        for element in reversed(response):
             if bins == '1h':
                 timestamp = datetime.strptime(element['timestamp'].replace("T", " ")[0:19],
                                               "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)
