@@ -23,7 +23,7 @@ h22_price, h22_bid_price, h22_ask_price = h22.close_price, h22.bid_price, h22.as
 initial_time = datetime.now()
 
 
-def on_message(ws, message):
+def on_message_trade(ws, message):
     global usd_ask_price, usd_bid_price, usd_price, eur_price, eur_bid_price, eur_ask_price, h22_price, h22_bid_price, h22_ask_price
     message = json.loads(message)
     data = message.get("data")[0]
@@ -37,7 +37,7 @@ def on_message(ws, message):
     else:
         h22_price = data['price']
 
-    if datetime.now() - initial_time > timedelta(minutes=5):
+    if datetime.now() - initial_time > timedelta(minutes=6):
         ws.close()
 
     usd.close_price = usd_price
@@ -66,7 +66,7 @@ def on_message_order(ws, message):
         h22_bid_price = data['bids'][0][0]
         h22_ask_price = data['asks'][0][0]
 
-    if datetime.now() - initial_time > timedelta(minutes=5):
+    if datetime.now() - initial_time > timedelta(minutes=6):
         ws.close()
 
     usd.bid_price = usd_bid_price
@@ -107,13 +107,13 @@ if __name__ == "__main__":
     websocket.enableTrace(False)
     ws_trade = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
                                     on_open=on_open_trade,
-                                    on_message=on_message,
+                                    on_message=on_message_trade,
                                     on_error=on_error,
                                     on_close=on_close)
 
     ws_order = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
                                 on_open=on_open_order,
-                                on_message=on_message,
+                                on_message=on_message_order,
                                 on_error=on_error,
                                 on_close=on_close)
 
