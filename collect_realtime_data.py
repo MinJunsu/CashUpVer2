@@ -14,41 +14,73 @@ from datetime import datetime, timedelta
 query = RealTimeData.objects.filter(market="BitMEX")
 usd = query.filter(symbol='XBTUSD').last()
 eur = query.filter(symbol='XBTEUR').last()
-m22 = query.filter(symbol='XBTM22').last()
+h22 = query.filter(symbol='XBTH22').last()
+
+usd_price, usd_bid_price, usd_ask_price = usd.close_price, usd.bid_price, usd.ask_price
+eur_price, eur_bid_price, eur_ask_price = eur.close_price, eur.bid_price, eur.ask_price
+h22_price, h22_bid_price, h22_ask_price = h22.close_price, h22.bid_price, h22.ask_price
 
 initial_time = datetime.now()
 
 
 def on_message(ws, message):
+    global usd_ask_price, usd_bid_price, usd_price, eur_price, eur_bid_price, eur_ask_price, h22_price, h22_bid_price, h22_ask_price
     message = json.loads(message)
-    action = message.get("action")
     data = message.get("data")[0]
-    print(message)
-    if action == "insert":
-        if data['symbol'] == "XBTUSD":
-            usd.close_price = data['price']
 
-        elif data['symbol'] == "XBTEUR":
-            eur.close_price = data['price']
-        else:
-            m22.close_price = data['price']
+    if data['symbol'] == "XBTUSD":
+        usd_price = data['price']
 
-        if datetime.now() - initial_time > timedelta(minutes=5):
-            ws.close()
+    elif data['symbol'] == "XBTEUR":
+        eur_price = data['price']
+
     else:
-        if data['symbol'] == "XBTUSD":
-            usd.bid_price = data['bids'][0][0]
-            usd.ask_price = data['asks'][0][0]
-        elif data['symbol'] == "XBTEUR":
-            eur.bid_price = data['bids'][0][0]
-            eur.ask_price = data['asks'][0][0]
-        else:
-            m22.bid_price = data['bids'][0][0]
-            m22.ask_price = data['asks'][0][0]
+        h22_price = data['price']
+
+    if datetime.now() - initial_time > timedelta(minutes=5):
+        ws.close()
+
+    usd.close_price = usd_price
+    eur.close_price = eur_price
+    h22.close_price = h22_price
 
     usd.save()
     eur.save()
-    m22.save()
+    h22.save()
+
+
+
+def on_message_order(ws, message):
+    global usd_ask_price, usd_bid_price, usd_price, eur_price, eur_bid_price, eur_ask_price, h22_price, h22_bid_price, h22_ask_price
+    message = json.loads(message)
+    data = message.get("data")[0]
+    if data['symbol'] == "XBTUSD":
+        usd_bid_price = data['bids'][0][0]
+        usd_ask_price = data['asks'][0][0]
+
+    elif data['symbol'] == "XBTEUR":
+        eur_bid_price = data['bids'][0][0]
+        eur_ask_price = data['asks'][0][0]
+
+    else:
+        h22_bid_price = data['bids'][0][0]
+        h22_ask_price = data['asks'][0][0]
+
+    if datetime.now() - initial_time > timedelta(minutes=5):
+        ws.close()
+
+    usd.bid_price = usd_bid_price
+    usd.ask_price = usd_ask_price
+
+    eur.bid_price = eur_bid_price
+    eur.ask_price = eur_ask_price
+
+    h22.bid_price = h22_bid_price
+    h22.ask_price = h22_ask_price
+
+    usd.save()
+    eur.save()
+    h22.save()
 
 
 def on_error(ws, error):
@@ -59,21 +91,31 @@ def on_close(ws, close_status_code, close_msg):
     print("### closed ###")
 
 
-def on_open(ws):
+def on_open_trade(ws):
     ws.send('{"op": "subscribe", "args": ["trade:XBTUSD"]}')
     ws.send('{"op": "subscribe", "args": ["trade:XBTEUR"]}')
-    ws.send('{"op": "subscribe", "args": ["trade:XBTM22"]}')
+    ws.send('{"op": "subscribe", "args": ["trade:XBTH22"]}')
+
+
+def on_open_order(ws):
     ws.send('{"op": "subscribe", "args": ["orderBook10:XBTUSD"]}')
     ws.send('{"op": "subscribe", "args": ["orderBook10:XBTEUR"]}')
-    ws.send('{"op": "subscribe", "args": ["orderBook10:XBTM22"]}')
+    ws.send('{"op": "subscribe", "args": ["orderBook10:XBTH22"]}')
 
 
 if __name__ == "__main__":
     websocket.enableTrace(False)
-    ws = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
-                                on_open=on_open,
+    ws_trade = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
+                                    on_open=on_open_trade,
+                                    on_message=on_message,
+                                    on_error=on_error,
+                                    on_close=on_close)
+
+    ws_order = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
+                                on_open=on_open_order,
                                 on_message=on_message,
                                 on_error=on_error,
                                 on_close=on_close)
 
-    ws.run_forever()
+    ws_trade.run_forever()
+    ws_order.run_forever()

@@ -17,7 +17,7 @@ class BitmexRealTimeData:
                 'obj': SubHourData,
             },
             {
-                'symbol': 'XBTM22',
+                'symbol': 'XBTH22',
                 'obj': ThirdHourData
             }
         ],
@@ -31,14 +31,14 @@ class BitmexRealTimeData:
                 'obj': SubMinuteData
             },
             {
-                'symbol': 'XBTM22',
+                'symbol': 'XBTH22',
                 'obj': ThirdMinuteData
             }
         ]
     }
 
     def get_data(self, symbol, bins, model):
-        URL = f'https://www.bitmex.com/api/v1/trade/bucketed?symbol={symbol}&binSize={bins}&partial=true&&count=10&reverse=true'
+        URL = f'https://www.bitmex.com/api/v1/trade/bucketed?symbol={symbol}&binSize={bins}&partial=true&&count=1000&reverse=true'
 
         response = requests.get(URL).json()
         for element in reversed(response):
@@ -109,7 +109,7 @@ class BitmexBackData:
             },
             {
                 'start': 0,
-                'symbol': 'XBTM22',
+                'symbol': 'XBTH22',
                 'obj': ThirdHourData
             }
         ],
@@ -126,7 +126,7 @@ class BitmexBackData:
             },
             {
                 'start': 0,
-                'symbol': 'XBTM22',
+                'symbol': 'XBTH22',
                 'obj': ThirdMinuteData
             }
         ]
