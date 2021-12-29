@@ -90,8 +90,6 @@ class BitmexRealTimeData:
             self.get_data(symbol, bins, model)
 
 
-
-
 class BitmexBackData:
     COUNT = 1000
     BASE_URL = 'https://www.bitmex.com/api/v1/'

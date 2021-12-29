@@ -8,6 +8,7 @@ django.setup()
 
 from bitmex.models import RealTimeData
 import websocket
+import threading
 import json
 from datetime import datetime, timedelta
 
@@ -27,6 +28,7 @@ def on_message_trade(ws, message):
     global usd_ask_price, usd_bid_price, usd_price, eur_price, eur_bid_price, eur_ask_price, h22_price, h22_bid_price, h22_ask_price
     message = json.loads(message)
     data = message.get("data")[0]
+    print(data)
 
     if data['symbol'] == "XBTUSD":
         usd_price = data['price']
@@ -47,7 +49,6 @@ def on_message_trade(ws, message):
     usd.save()
     eur.save()
     h22.save()
-
 
 
 def on_message_order(ws, message):
@@ -103,19 +104,28 @@ def on_open_order(ws):
     ws.send('{"op": "subscribe", "args": ["orderBook10:XBTH22"]}')
 
 
-if __name__ == "__main__":
+def create_websocket(flag):
     websocket.enableTrace(False)
-    ws_trade = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
-                                    on_open=on_open_trade,
-                                    on_message=on_message_trade,
-                                    on_error=on_error,
-                                    on_close=on_close)
+    if flag:
+        ws_trade = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
+                                          on_open=on_open_trade,
+                                          on_message=on_message_trade,
+                                          on_error=on_error,
+                                          on_close=on_close)
+        ws_trade.run_forever()
 
-    ws_order = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
-                                on_open=on_open_order,
-                                on_message=on_message_order,
-                                on_error=on_error,
-                                on_close=on_close)
+    else:
+        ws_order = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
+                                          on_open=on_open_order,
+                                          on_message=on_message_order,
+                                          on_error=on_error,
+                                          on_close=on_close)
+        ws_order.run_forever()
 
-    ws_trade.run_forever()
-    ws_order.run_forever()
+
+if __name__ == '__main__':
+    t1 = threading.Thread(target=create_websocket, args=[True])
+    t2 = threading.Thread(target=create_websocket, args=[False])
+
+    t1.start()
+    t2.start()
