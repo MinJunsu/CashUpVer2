@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 import requests
 
-from bitmex.models import MainHourData, SubHourData, ThirdHourData, MainMinuteData, SubMinuteData, ThirdMinuteData
+from bitmex.models import MainHourData, SubHourData, ThirdHourData, MainMinuteData, SubMinuteData, ThirdMinuteData, FourthHourData, FourthMinuteData
 
 
 class BitmexRealTimeData:
@@ -19,6 +19,14 @@ class BitmexRealTimeData:
             {
                 'symbol': 'XBTH22',
                 'obj': ThirdHourData
+            },
+            {
+                'symbol': 'XBTH22',
+                'obj': ThirdHourData
+            },
+            {
+                'symbol': 'XBTM22',
+                'obj': FourthHourData
             }
         ],
         '5m': [
@@ -33,6 +41,10 @@ class BitmexRealTimeData:
             {
                 'symbol': 'XBTH22',
                 'obj': ThirdMinuteData
+            },
+            {
+                'symbol': 'XBTM22',
+                'obj': FourthMinuteData
             }
         ]
     }

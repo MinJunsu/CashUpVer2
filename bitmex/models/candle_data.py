@@ -32,6 +32,10 @@ class ThirdHourData(HourData):
     pass
 
 
+class FourthHourData(HourData):
+    pass
+
+
 class MainMinuteData(MinuteData):
     """
     XBT/USD
@@ -50,4 +54,8 @@ class ThirdMinuteData(MinuteData):
     """
     XBT/H22, XBT/F22, XBT/M22
     """
+    pass
+
+
+class FourthMinuteData(MinuteData):
     pass

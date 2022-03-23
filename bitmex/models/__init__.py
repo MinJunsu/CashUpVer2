@@ -1,3 +1,3 @@
 from .candle_data import (
-    MainHourData, SubHourData, ThirdHourData, MainMinuteData, SubMinuteData, ThirdMinuteData, RealTimeData
+    MainHourData, SubHourData, ThirdHourData, MainMinuteData, SubMinuteData, ThirdMinuteData, RealTimeData, FourthMinuteData, FourthHourData
 )
